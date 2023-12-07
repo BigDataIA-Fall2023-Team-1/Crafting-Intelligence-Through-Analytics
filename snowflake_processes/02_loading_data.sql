@@ -9,7 +9,7 @@ CREATE TABLE JOBS.data (
     job_id STRING,
     city STRING,
     state STRING,
-    month STRING,
+    month STRING
 );
 
 -- -- Set up environment variables for AWS credentials and S3 bucket name
