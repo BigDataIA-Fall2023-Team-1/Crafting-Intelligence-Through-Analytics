@@ -4,6 +4,8 @@ altair==5.2.0
 annotated-types==0.6.0
 anyio==3.7.1
 asn1crypto==1.5.1
+async-timeout==4.0.3
+asyncpg==0.29.0
 attrs==23.1.0
 blinker==1.7.0
 cachetools==5.3.2
