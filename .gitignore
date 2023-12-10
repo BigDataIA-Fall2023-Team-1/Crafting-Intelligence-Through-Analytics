@@ -160,3 +160,5 @@ cython_debug/
 #.idea/
 
 airflow/logs/scheduler
+.DS_STORE
+astro-gx-airflow

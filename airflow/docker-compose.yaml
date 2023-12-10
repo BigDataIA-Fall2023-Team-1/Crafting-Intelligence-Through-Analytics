@@ -77,14 +77,6 @@ x-airflow-common:
     # AIRFLOW_LOGGING_REMOTE_BASE_LOG_FOLDER: "s3://a3-logs/path/to/log/folder"
     # AIRFLOW_LOGGING_REMOTE_LOG_CONN_ID: assignment_3
     # AIRFLOW_LOGGING_ENCRYPT_S3_LOGS: "False"
-
-    # aws_access_key_id: ${AWS_ACCESS_KEY}
-    # aws_secret_access_key: ${AWS_SECRET_KEY}
-    # s3_bucket_name: ${S3_BUCKET_NAME}
-    # api_key: ${OPENAI_API_KEY}
-    # pi_api_key: ${PINECONE_API_KEY}
-
-    
     AIRFLOW__CORE__ENABLE_XCOM_PICKLING: 'true'
   
   env_file:
