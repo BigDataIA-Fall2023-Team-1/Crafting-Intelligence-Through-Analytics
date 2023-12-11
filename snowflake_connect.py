@@ -22,7 +22,8 @@ def get_snowflake_connection():
         password=snowflake_password,
         account=snowflake_account,
         database=snowflake_database,
-        role=snowflake_role
+        role=snowflake_role,
+        table=snowflake_table
     )
 
 def snow_connect(query):
@@ -33,13 +34,11 @@ def snow_connect(query):
     cursor = conn.cursor()
 
     # Define a SQL query
-    query = f"""
-    SELECT *
-    FROM {snowflake_table};
+    sql = f"""
+    {query};
     """
-
     # Execute the query and convert the result to a Pandas dataframe
-    cursor.execute(query)
+    cursor.execute(sql)
     df = cursor.fetch_pandas_all()
 
     # Add Streamlit features to your app to display the results of your query

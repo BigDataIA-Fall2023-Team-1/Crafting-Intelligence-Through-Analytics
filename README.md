@@ -55,38 +55,67 @@ SNOWFLAKE_ROLE=""
 SNOWFLAKE_WAREHOUSE=""
 SNOWFLAKE_DATABASE=""
 SNOWFLAKE_TABLE=""
+
+# Postgres
+POSTGRES_USER=""
+POSTGRES_PASSWORD=""
+POSTGRES_HOST=""
+POSTGRES_PORT="5432"
+POSTGRES_DB=""
+HOST_IP_ADDRESS=""
+
+# email
+MY_EMAIL=""
+APP_PASSWORD=""
 ```
 
-# Create virtual environment for streamlit
+# Environment Setup
 
-### Install virtualenv if you haven't already
+### Create virtual environment
 ```
-pip install virtualenv
-```
-
-### Create a virtual environment
-```
-virtualenv venv
+make install
 ```
 
-### Create python environment for the directory
-```
-python -m venv venv
-```
+### Run FastAPI server
 
-### Activate the virtual environment
 ```
-source venv/bin/activate
-```
-
-### Pip install requirements
-```
-pip install -r requirements.txt
+make runserver
 ```
 
 ### Run streamlit application
+
 ```
-streamlit run app.py
+make streamlit
+```
+
+# Database Setup
+
+- Create Table
+```
+CREATE TABLE users (
+    id SERIAL PRIMARY KEY,
+    username VARCHAR(255) UNIQUE,
+    full_name VARCHAR(255),
+    email VARCHAR(255) UNIQUE,
+    hashed_password VARCHAR(255),
+    active BOOLEAN DEFAULT TRUE,
+    created_at TIMESTAMP DEFAULT NOW()
+);
+```
+
+- Create user role
+```
+CREATE USER admin WITH PASSWORD 'password';
+```
+
+- Grant necessary privileges for generating primary key values
+```
+GRANT USAGE, SELECT ON SEQUENCE users_id_seq TO admin;
+```
+
+- Admin role can perform all CRUD operations
+```
+GRANT SELECT, INSERT, UPDATE, DELETE ON users TO admin;
 ```
 
 # ATTESTATION:
