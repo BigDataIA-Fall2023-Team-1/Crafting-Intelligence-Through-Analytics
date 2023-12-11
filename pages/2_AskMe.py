@@ -1,11 +1,15 @@
 import os
-import openai
+import logging
 import requests
 import streamlit as st
 from dotenv import load_dotenv
+from snowflake_connect import snow_connect
 
 # Load environment variables from the .env file
 load_dotenv()
+
+# Log metrics
+logging.basicConfig(level=logging.INFO)
 
 host_ip_address = os.getenv("HOST_IP_ADDRESS")
 
@@ -24,12 +28,12 @@ def question_answer(access_token):
         headers = {"Authorization": f"Bearer {access_token}"}
         data = {"question": question}
         response = requests.post(f"http://{host_ip_address}:8000/process_question", json=data, headers=headers)
-
         if response.status_code == 200:
-            answer = response.json().get("answer")
-            st.write(f"Answer: {answer}")
+            sql_query = response.json().get("sql_query")
+            st.write(f"sql_query: {sql_query}")
+            snow_connect(sql_query)
         else:
-            st.write("Error: Unable to retrieve an answer.")
+            st.write("Error: Unable to retrieve an sql_query.")
     
 # If the user is authenticated, they can access protected data
 if "access_token" in st.session_state:

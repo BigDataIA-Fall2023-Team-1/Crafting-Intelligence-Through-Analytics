@@ -9,7 +9,6 @@ from sqlalchemy.orm import Session
 from sqlalchemy.orm import sessionmaker
 from passlib.context import CryptContext
 from datetime import datetime, timedelta
-from snowflake_connect import snow_connect
 from fastapi import FastAPI, Depends, HTTPException
 from sqlalchemy.ext.declarative import declarative_base
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
@@ -28,6 +27,7 @@ api_key = os.getenv("OPENAI_KEY")
 pinecone_api_key = os.getenv("PINECONE_API")
 postgres_user = os.getenv("POSTGRES_USER")
 postgres_password = os.getenv("POSTGRES_PASSWORD")
+postgres_host = os.getenv("POSTGRES_HOST")
 host_ip_address = os.getenv("POSTGRES_HOST")
 port = os.getenv("POSTGRES_PORT")
 postgres_db = os.getenv("POSTGRES_DB")
@@ -39,26 +39,10 @@ logging.basicConfig(level=logging.INFO)
 app = FastAPI()
 
 class UserInput(BaseModel):
-    forms: list  # Change from 'form' to 'forms' to accept a list of selected forms
     question: str
 
-def generate_answer(question: str):
-    try:
-        # Create embeddings for the given 'question' using the specified EMBEDDING_MODEL
-        openai.api_key = api_key
-        EMBEDDING_MODEL = "text-embedding-ada-002"
-        response = openai.Embedding.create(model=EMBEDDING_MODEL, input=question)
-
-        # Extract the embeddings from the API response
-        embeddings = response["data"][0]["embedding"]
-
-        return embeddings
-    except Exception as e:
-        return str(e)
-
-
 # Database setup
-DATABASE_URL = f"postgresql://{postgres_user}:{postgres_password}@{host_ip_address}:{port}/{postgres_db}"
+DATABASE_URL = f"postgresql://{postgres_user}:{postgres_password}@{postgres_host}:{port}/{postgres_db}"
 database = Database(DATABASE_URL)
 metadata = MetaData()
 Base = declarative_base()
@@ -174,39 +158,43 @@ async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(
 async def get_protected_data(current_user: User = Depends(oauth2_scheme)):
     return current_user
 
-
 schema = """
-create TABLE US_JOBS (
-	COMPANY_NAME VARCHAR(16777216),
-	JOB_TITLE VARCHAR(16777216),
-	LOCATION VARCHAR(16777216),
-	COMPANY_DOMAIN VARCHAR(16777216),
-	JOB_URL VARCHAR(16777216),
-	POSTED_ON DATE,
-	JOB_ID NUMBER(38,0),
-	CITY VARCHAR(16777216),
-	STATE VARCHAR(16777216)
-);
+    create TABLE US_JOBS (
+        COMPANY_NAME VARCHAR(16777216),
+        JOB_TITLE VARCHAR(16777216),
+        LOCATION VARCHAR(16777216),
+        COMPANY_DOMAIN VARCHAR(16777216),
+        JOB_URL VARCHAR(16777216),
+        POSTED_ON DATE,
+        JOB_ID NUMBER(38,0),
+        CITY VARCHAR(16777216),
+        STATE VARCHAR(16777216)
+    );
 """
 
 @app.post("/process_question")
 async def process_question(input_data: UserInput, current_user: User = Depends(oauth2_scheme)):
-    snow_connect()
-    # Initialize session state to store conversation history
-    if 'conversation' not in st.session_state:
-        st.session_state.conversation = []
+    try:
+        # Initialize session state to store conversation history
+        if 'conversation' not in st.session_state:
+            st.session_state.conversation = []
 
-    openai.api_key = os.getenv("OPENAI_API")
-    sql_query = openai.ChatCompletion.create(
-        model="gpt-3.5-turbo",
-        messages=[
-            {"role": "system", "content": f"Given the following SQL tables {schema}, your job is to write SQL queries based user's request by joining them as necessary and process the query on {df} and {df1} and display both the query and results taken from table only if asked question is related to our table"},
-            {"role": "user", "content": f"If the asked question doesn't belong to a SQL query, then tell the user to be specific on what they want to see from the database by displaying the {schema}. Otherwise, process the SQL query: on {input_data.question}"},
-            {"role": "assistant", "content": "Remember your previous responses so that I can expand on your generated query or modify it as needed"}
-        ],
-        temperature=0,
-        max_tokens=256,
-        top_p=1,
-        frequency_penalty=0,
-        presence_penalty=0
-    )
+        openai.api_key = os.getenv("OPENAI_API")
+        sql_query = openai.ChatCompletion.create(
+            model="gpt-3.5-turbo",
+            messages=[
+                {"role": "system", "content": f"Given the following SQL table {schema}, your job is to write SQL queries based on user's request"},
+                {"role": "user", "content": f"If the asked question doesn't belong to a SQL query, then tell the user to be specific on what they want to see from the database by displaying the {schema}. Otherwise, generate an SQL query on {input_data.question}"}
+            ],
+            temperature=0,
+            max_tokens=256,
+            top_p=1,
+            frequency_penalty=0,
+            presence_penalty=0
+        )
+        result = sql_query['choices'][-1]['message']['content']
+        # snow_connect(result)
+        return {"sql_query": result}
+
+    except Exception as e:
+        return {"error": str(e)}
