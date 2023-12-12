@@ -24,7 +24,7 @@
 # The following variables are supported:
 #
 # AIRFLOW_IMAGE_NAME           - Docker image name used to run Airflow.
-#                                Default: apache/airflow:2.7.2
+#                                Default: apache/airflow:2.7.3
 # AIRFLOW_UID                  - User ID in Airflow containers
 #                                Default: 50000
 # AIRFLOW_PROJ_DIR             - Base path to which all the files will be volumed.
@@ -50,7 +50,7 @@ x-airflow-common:
   # In order to add custom dependencies or upgrade provider packages you can use your extended image.
   # Comment the image line, place your Dockerfile in the directory where you placed the docker-compose.yaml
   # and uncomment the "build" line below, Then run `docker-compose build` to build the images.
-  image: ${AIRFLOW_IMAGE_NAME:-apache/airflow:2.7.2}
+  image: ${AIRFLOW_IMAGE_NAME:-apache/airflow:2.7.3}
   # build: .
   environment:
     &airflow-common-env
@@ -63,6 +63,7 @@ x-airflow-common:
     AIRFLOW__CORE__FERNET_KEY: ''
     AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION: 'true'
     AIRFLOW__CORE__LOAD_EXAMPLES: 'false'
+    AIRFLOW__CORE__ENABLE_XCOM_PICKLING : 'true'
     AIRFLOW__API__AUTH_BACKENDS: 'airflow.api.auth.backend.basic_auth,airflow.api.auth.backend.session'
     AIRFLOW_VAR_TEST: "hello"
     # yamllint disable rule:line-length
@@ -72,15 +73,7 @@ x-airflow-common:
     AIRFLOW__SCHEDULER__ENABLE_HEALTH_CHECK: 'true'
     # WARNING: Use _PIP_ADDITIONAL_REQUIREMENTS option ONLY for a quick checks
     # for other purpose (development, test and especially production usage) build/extend Airflow image.
-    _PIP_ADDITIONAL_REQUIREMENTS: ${_PIP_ADDITIONAL_REQUIREMENTS:- streamlit openai pandas boto3 pinecone-client}
-    # AIRFLOW_LOGGING_REMOTE_LOGGING: "True"
-    # AIRFLOW_LOGGING_REMOTE_BASE_LOG_FOLDER: "s3://a3-logs/path/to/log/folder"
-    # AIRFLOW_LOGGING_REMOTE_LOG_CONN_ID: assignment_3
-    # AIRFLOW_LOGGING_ENCRYPT_S3_LOGS: "False"
-    AIRFLOW__CORE__ENABLE_XCOM_PICKLING: 'true'
-  
-  env_file:
-    - ./.env
+    _PIP_ADDITIONAL_REQUIREMENTS: ${_PIP_ADDITIONAL_REQUIREMENTS:- selenium webdriver-manager}
   volumes:
     - ${AIRFLOW_PROJ_DIR:-.}/dags:/opt/airflow/dags
     - ${AIRFLOW_PROJ_DIR:-.}/logs:/opt/airflow/logs
@@ -304,6 +297,15 @@ services:
       <<: *airflow-common-depends-on
       airflow-init:
         condition: service_completed_successfully
+  selenium:
+    container_name: remote_chromedriver
+    image: selenium/standalone-chrome:latest
+    ports:
+      - 4444:4444
+    restart: always  
 
 volumes:
   postgres-db-volume:
+
+  
+
