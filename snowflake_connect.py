@@ -1,10 +1,8 @@
 import os
-import openai
-from dotenv import load_dotenv
 import pandas as pd
 import streamlit as st
+from dotenv import load_dotenv
 from snowflake.connector import connect
-from snowflake.snowpark.session import Session
 
 # Load environment variables from the .env file
 load_dotenv()
@@ -24,28 +22,28 @@ def get_snowflake_connection():
         password=snowflake_password,
         account=snowflake_account,
         database=snowflake_database,
-        role=snowflake_role
+        role=snowflake_role,
+        table=snowflake_table
     )
 
-# Create a connection
-conn = get_snowflake_connection()
+def snow_connect(query):
+    # Create a connection
+    conn = get_snowflake_connection()
 
-# Create a cursor
-cursor = conn.cursor()
+    # Create a cursor
+    cursor = conn.cursor()
 
-# Define a SQL query
-query = f"""
-SELECT *
-FROM {snowflake_table};
-"""
+    # Define a SQL query
+    sql = f"""
+    {query};
+    """
+    # Execute the query and convert the result to a Pandas dataframe
+    cursor.execute(sql)
+    df = cursor.fetch_pandas_all()
 
-# Execute the query and convert the result to a Pandas dataframe
-cursor.execute(query)
-df = cursor.fetch_pandas_all()
+    # Add Streamlit features to your app to display the results of your query
+    st.dataframe(df)
 
-# Add Streamlit features to your app to display the results of your query
-st.dataframe(df)
-
-# Close the cursor and connection
-cursor.close()
-conn.close()
+    # Close the cursor and connection
+    cursor.close()
+    conn.close()
