@@ -18,6 +18,9 @@ from selenium.webdriver.chrome.service import Service
 import re
 import boto3
 from io import BytesIO
+from dotenv import load_dotenv 
+
+load_dotenv()
 
 conn = snowflake.connector.connect(
     account='wt07623.us-east4.gcp',
@@ -27,9 +30,12 @@ conn = snowflake.connector.connect(
     database='HOL_DB1',
     schema= 'PUBLIC',
 )
-aws_access_key_id ="AKIA6GKD5DFCOUYGJLMQ"
-aws_secret_access_key = "PikOCseRaYHdEgdtZO9frGyCOIITnrQlpZkqYm7t"
-s3_bucket_name = "damg-scraped-jobs"
+# Set your S3 credentials
+aws_access_key_id = os.getenv('AIRFLOW_VAR_AWS_ACCESS_KEY')
+aws_secret_access_key = os.getenv('AIRFLOW_VAR_AWS_SECRET_KEY')
+s3_bucket_name = os.getenv('AIRFLOW_VAR_S3_BUCKET_NAME')
+
+
 # Function to perform the scraping
 def scrape_jobs():  
     job_search_keyword = ['Data Engineer', 'Data Analyst', 'Software Developer','Data Scientist','Software Engineer','Machine Learning','Cloud','Supply Chain','DevOps', 'Business Analyst', 'AI']
@@ -118,7 +124,7 @@ def load_stage():
     cursor.execute("""
         COPY INTO JOBS_STAGE
         FROM 's3://damg-scraped-jobs/scraped.csv'
-        CREDENTIALS = (AWS_KEY_ID='AKIA6GKD5DFCOUYGJLMQ' AWS_SECRET_KEY='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')
+        CREDENTIALS = (AWS_KEY_ID=aws_access_key_id AWS_SECRET_KEY=aws_secret_access_key)
         FILE_FORMAT = (TYPE = CSV FIELD_OPTIONALLY_ENCLOSED_BY = '"' RECORD_DELIMITER = '\n' SKIP_HEADER = 1);
         """)
     cursor.close()
