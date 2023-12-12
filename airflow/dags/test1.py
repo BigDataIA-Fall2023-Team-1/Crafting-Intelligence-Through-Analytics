@@ -19,6 +19,14 @@ import re
 import boto3
 from io import BytesIO
 
+conn = snowflake.connector.connect(
+    account='wt07623.us-east4.gcp',
+    user ='RONNIE',
+    password = 'Pratham@123',
+    warehouse= 'HOL_WH1',
+    database='HOL_DB1',
+    schema= 'PUBLIC',
+)
 aws_access_key_id ="AKIA6GKD5DFCOUYGJLMQ"
 aws_secret_access_key = "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"
 s3_bucket_name = "damg-scraped-jobs"
@@ -91,15 +99,54 @@ def Data_cleaning(**kwargs):
     new_df = new_df.drop_duplicates(subset=['Job_ID'])
 
     current_directory = os.path.dirname(os.path.abspath(__file__ or '.'))
-    filename = f"testttt.csv"
+    filename = f"raw_jobs.csv"
     filepath = os.path.join(current_directory, filename)
     # Save the DataFrame to a CSV file
     cleaned_csv=new_df.to_csv(filepath, index=False)
     csv_content = new_df.to_csv(index=False).encode('utf-8')
 
-        # Upload the embeddings for 'pypdf_content' to S3
+    # Upload the embeddings for 'pypdf_content' to S3
     s3 = boto3.client('s3', aws_access_key_id=aws_access_key_id, aws_secret_access_key=aws_secret_access_key)
     s3.put_object(Bucket='damg-scraped-jobs', Key='scraped.csv', Body=csv_content)
+    time.sleep(20)
+
+
+def load_stage():
+    cursor = conn.cursor()
+    # Modify the CREATE TABLE statement based on your requirements
+    cursor.execute("""TRUNCATE TABLE JOBS_STAGE """)
+    cursor.execute("""
+        COPY INTO JOBS_STAGE
+        FROM 's3://damg-scraped-jobs/scraped.csv'
+        CREDENTIALS = (AWS_KEY_ID='AKIA6GKD5DFCOUYGJLMQ' AWS_SECRET_KEY='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')
+        FILE_FORMAT = (TYPE = CSV FIELD_OPTIONALLY_ENCLOSED_BY = '"' RECORD_DELIMITER = '\n' SKIP_HEADER = 1);
+        """)
+    cursor.close()
+    conn.close()
+    time.sleep(20)
+
+def merge():
+    cursor = conn.cursor()
+    # Modify the CREATE TABLE statement based on your requirements
+    cursor.execute("""
+        MERGE INTO HOL_DB1.PUBLIC.US_JOBS_DATABASE t
+        USING HOL_DB1.PUBLIC.JOBS_STAGE s
+        ON t.JOB_ID = s.JOB_ID
+        WHEN MATCHED THEN
+            UPDATE SET t.COMPANY_NAME = s.COMPANY_NAME,
+                       t.JOB_TITLE = s.JOB_TITLE,
+                       t.LOCATION = s.LOCATION,
+                       t.JOB_URL = s.JOB_URL,
+                       t.POSTED_ON = s.POSTED_ON,
+                       t.JOB_ID = s.JOB_ID,
+                       t.CITY = s.CITY,
+                       t.STATE = s.STATE
+        WHEN NOT MATCHED THEN
+            INSERT (COMPANY_NAME, JOB_TITLE, LOCATION, JOB_URL, POSTED_ON, JOB_ID, CITY, STATE)
+            VALUES (s.COMPANY_NAME, s.JOB_TITLE, s.LOCATION, s.JOB_URL, s.POSTED_ON, s.JOB_ID, s.CITY, s.STATE);
+        """)
+    cursor.close()
+    conn.close()
 
 
 def convert_relative_time(relative_time):
@@ -112,7 +159,7 @@ def convert_relative_time(relative_time):
         return date_result.strftime("%m/%d/%Y")
     except:
         return None
-
+    
 
 dag= DAG(
     dag_id= "Final",
@@ -131,27 +178,16 @@ with dag:
         task_id='Data_Cleaning',
         python_callable=Data_cleaning
     )
+    snowflake_stage_task= PythonOperator(
+        task_id='load_stage_table',
+        python_callable=load_stage,
+        dag=dag
+    )
 
-    # snowflake_conn_id = 'snowflake_conn'
-    # load_local_to_snowflake_task = SnowflakeOperator(
-    # task_id='load_local_to_snowflake',
-    # sql=f"COPY INTO Test '@{snowflake_conn_id}' FILE_FORMAT=(TYPE=CSV FIELD_OPTIONALLY_ENCLOSED_BY='\"' SKIP_HEADER=1) PURGE=TRUE;",
-    # snowflake_conn_id=snowflake_conn_id,
-    # dag=dag,
-    scraping_task>>csv_to_dataframe_task
+    merge_task = PythonOperator(
+        task_id='merge_table',
+        python_callable=merge,
+        dag=dag
+    )
 
-
-
-
-
-
-    # # Convert 'Posted On' to datetime format and then to "mm-dd-yyyy"
-    # df['Posted On'] = pd.to_datetime(df['Posted On'], errors='coerce')
-    # df['Posted On'] = pd.to_datetime(df['Posted On'].dt.strftime('%m-%d-%Y'))
-
-    #     current_directory = os.path.dirname(os.path.abspath(__file__ or '.'))
-    # filename = f"testttt.csv"
-    # filepath = os.path.join(current_directory, filename)
-    # # Save the DataFrame to a CSV file
-    # PikOCseRaYHdEgdtZO9frGyCOIITnrQlpZkqYm7t secret access key
-    # AKIA6GKD5DFCOUYGJLMQ access key
+    scraping_task>>csv_to_dataframe_task>>snowflake_stage_task>>merge_task
