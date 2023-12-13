@@ -18,7 +18,8 @@ from selenium.webdriver.chrome.service import Service
 import re
 import boto3
 from io import BytesIO
-from dotenv import load_dotenv 
+from dotenv import load_dotenv
+import snowflake.connector
 
 load_dotenv()
 
@@ -31,16 +32,16 @@ conn = snowflake.connector.connect(
     schema= 'PUBLIC',
 )
 # Set your S3 credentials
-aws_access_key_id = os.getenv('AIRFLOW_VAR_AWS_ACCESS_KEY')
-aws_secret_access_key = os.getenv('AIRFLOW_VAR_AWS_SECRET_KEY')
-s3_bucket_name = os.getenv('AIRFLOW_VAR_S3_BUCKET_NAME')
-
+aws_access_key_id = os.getenv("AIRFLOW_VAR_AWS_ACCESS_KEY")
+aws_secret_access_key = os.getenv("AIRFLOW_VAR_AWS_SECRET_KEY")
+s3_bucket_name = os.getenv("AIRFLOW_VAR_S3_BUCKET_NAME")
+print(aws_access_key_id)
 
 # Function to perform the scraping
 def scrape_jobs():  
     job_search_keyword = ['Data Engineer', 'Data Analyst', 'Software Developer','Data Scientist','Software Engineer','Machine Learning','Cloud','Supply Chain','DevOps', 'Business Analyst', 'AI']
     all_jobs = []
-    remote_webdriver = 'http://172.19.0.4:4444'
+    remote_webdriver = 'http://172.20.0.4:4444'
     for job_ in job_search_keyword:
         option= webdriver.ChromeOptions()
         option.add_argument("--disable-dev-shm-usage")
@@ -72,6 +73,8 @@ def scrape_jobs():
 def Data_cleaning(**kwargs):
     ti = kwargs["ti"]
     df = ti.xcom_pull(task_ids="Data_Scraping")
+    aws_access_key_id = os.getenv("AIRFLOW_VAR_AWS_ACCESS_KEY")
+    aws_secret_access_key = os.getenv("AIRFLOW_VAR_AWS_SECRET_KEY")
     message="Not Available"
     message1="Remote"
     df['Job_Posted_Date'] = df['Job_Posted_Date'].apply(lambda x: convert_relative_time(x) if x is not None else None)
@@ -119,17 +122,31 @@ def Data_cleaning(**kwargs):
 
 def load_stage():
     cursor = conn.cursor()
-    # Modify the CREATE TABLE statement based on your requirements
+    # Truncate the JOBS_STAGE table
     cursor.execute("""TRUNCATE TABLE JOBS_STAGE """)
-    cursor.execute("""
+
+    # Retrieve AWS credentials
+    aws_access_key_id = os.getenv("AIRFLOW_VAR_AWS_ACCESS_KEY")
+    aws_secret_access_key = os.getenv("AIRFLOW_VAR_AWS_SECRET_KEY")
+
+    # Formulate the COPY INTO command with actual credentials
+    copy_command = f"""
         COPY INTO JOBS_STAGE
         FROM 's3://damg-scraped-jobs/scraped.csv'
-        CREDENTIALS = (AWS_KEY_ID=aws_access_key_id AWS_SECRET_KEY=aws_secret_access_key)
+        CREDENTIALS = (AWS_KEY_ID='{aws_access_key_id}' AWS_SECRET_KEY='{aws_secret_access_key}')
         FILE_FORMAT = (TYPE = CSV FIELD_OPTIONALLY_ENCLOSED_BY = '"' RECORD_DELIMITER = '\n' SKIP_HEADER = 1);
-        """)
+    """
+
+    # Execute the COPY INTO command
+    cursor.execute(copy_command)
+
+    # Close the cursor and connection
     cursor.close()
     conn.close()
+
+    # Wait for 20 seconds
     time.sleep(20)
+
 
 def merge():
     cursor = conn.cursor()
