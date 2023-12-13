@@ -44,5 +44,5 @@ jobs:
           echo "warehousename = $SNOWSQL_WAREHOUSE" >> config
           echo "dbname = $SNOWSQL_DATABASE" >> config
 
-      - name: Covid Data Pipelines Using Snowpark
+      - name: Crafting Intelligence Through Analytics
         run: python deploy_covid_pipelines.py $GITHUB_WORKSPACE
