@@ -1,4 +1,4 @@
-name: Scraping LinkedIn / Indeed Jobs Pipeline 
+name: Airflow DAG CI/CD Pipeline
 
 on:
   push:
@@ -6,6 +6,24 @@ on:
       - main
 
 jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Setup Python 3.8
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.8'
+
+      - name: Install Python packages
+        run: pip install -r requirements.txt
+
+      - name: Run Airflow DAG tests
+        run: pytest tests/
+
   deploy:
     runs-on: ubuntu-latest
 
@@ -13,18 +31,20 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Setup Python 3.10
-        uses: actions/setup-python@v4
+      - name: Setup Python 3.8
+        uses: actions/setup-python@v2
         with:
-          python-version: '3.10'
+          python-version: '3.8'
 
       - name: Install Python packages
-        run: pip install -r snowflake_processes/requirements.txt
+        run: pip install -r requirements.txt
 
-      - name: Configure snowcli
+      - name: Deploy Airflow DAG
+        run: python deploy_dag.py
         env:
-          SNOWSQL_ACCOUNT: ${{ secrets.SNOWSQL_ACCOUNT }}
-          SNOWSQL_USER: ${{ secrets.SNOWSQL_USER }}
+          SNOWFLAKE_ACCOUNT: ${{ secrets.SNOWFLAKE_ACCOUNT }}
+          SNOWFLAKE_USER: ${{ secrets.SNOWFLAKE_USER }}
+          SNOWFLAKE_PASSWORD: ${{ secrets.SNOWFLAKE_PASSWORD }}
           SNOWSQL_PWD: ${{ secrets.SNOWSQL_PWD }}
           SNOWSQL_ROLE: ${{ secrets.SNOWSQL_ROLE }}
           SNOWSQL_WAREHOUSE: ${{ secrets.SNOWSQL_WAREHOUSE }}
