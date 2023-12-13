@@ -35,7 +35,6 @@ conn = snowflake.connector.connect(
 aws_access_key_id = os.getenv("AIRFLOW_VAR_AWS_ACCESS_KEY")
 aws_secret_access_key = os.getenv("AIRFLOW_VAR_AWS_SECRET_KEY")
 s3_bucket_name = os.getenv("AIRFLOW_VAR_S3_BUCKET_NAME")
-print(aws_access_key_id)
 
 # Function to perform the scraping
 def scrape_jobs():  
