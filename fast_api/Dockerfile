@@ -1,22 +1,22 @@
-# Pull the base docker image of python with tag 3.11.5
+# Use an official Python runtime as a parent image
 FROM python:3.11
 
-# Install Pipenv
-RUN pip install pipenv
-
-# Change the working dir inside the container - cd /app
+# Set the working directory in the container
 WORKDIR /app
 
-# Copy user_registration.py as source code and req.txt as dependency
+# Copy user_registration.py, requirements.txt, and other necessary files
 COPY user_registration.py ./
+COPY requirements.txt ./
+COPY .env ./
 
-COPY Pipfile Pipfile.lock ./
+# Install the dependencies
+RUN pip install --no-cache-dir -r requirements.txt
 
-# Install the dependency
-RUN pipenv install --system --deploy --ignore-pipfile
+# Install gunicorn
+RUN pip install gunicorn
 
-### Container Env same as local at this point
+# Expose port
 EXPOSE 8000
 
-# gunicorn command to run the service with 4 worker nodes binding localhost/0.0.0.0 on port 8000 refering app inside the user_registration.py
-CMD ["gunicorn" ,"-w", "4", "-k", "uvicorn.workers.UvicornWorker" , "--bind", "0.0.0.0:8000", "user_registration:app"]
+# Command to run the application
+CMD ["gunicorn", "-w", "4", "-k", "uvicorn.workers.UvicornWorker", "--bind", "0.0.0.0:8000", "user_registration:app"]
