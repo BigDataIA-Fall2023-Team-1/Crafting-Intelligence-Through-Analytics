@@ -1,16 +1,29 @@
 import sys
 import os
 
-ignore_folders = ['__pycache__', '.ipynb_checkpoints']
-
 if len(sys.argv) != 2:
     print("Root directory is required")
     exit()
 
 root_directory = sys.argv[1]
-print(f"Deploying all Snowpark apps in root directory {root_directory}")
+print(f"Deploying LinkedIn / Indeed Jobs in root directory {root_directory}")
+
+# Assume you have some deployment logic here
+# For example, you can invoke your existing deployment script or commands
+
+# Change directory to your Airflow DAG directory
+dag_directory = os.path.join(root_directory, 'airflow/dags/test1.py')
+os.chdir(dag_directory)
+
+# Run your Airflow DAG deployment command
+# Modify this based on your actual deployment command
+os.system("airflow dags trigger -c '{\"key\": \"value\"}' your_dag_id")
+
+print("Airflow DAG deployment completed.")
 
 # Walk the entire directory structure recursively
+ignore_folders = ['__pycache__', '.ipynb_checkpoints']
+
 for (directory_path, directory_names, file_names) in os.walk(root_directory):
     # Get just the last/final folder name in the directory path
     base_name = os.path.basename(directory_path)
