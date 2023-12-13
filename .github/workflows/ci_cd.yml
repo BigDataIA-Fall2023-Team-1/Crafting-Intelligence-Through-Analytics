@@ -43,7 +43,7 @@ jobs:
 
 
       - name: Deploy Airflow DAG
-        run: python deploy_dag.py
+        run: python airflow/dags/test1.py
         env:
           SNOWFLAKE_ACCOUNT: ${{ secrets.SNOWFLAKE_ACCOUNT }}
           SNOWFLAKE_USER: ${{ secrets.SNOWFLAKE_USER }}
