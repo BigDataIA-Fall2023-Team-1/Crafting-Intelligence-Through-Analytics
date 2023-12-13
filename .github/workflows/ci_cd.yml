@@ -1,6 +1,8 @@
 name: Airflow DAG CI/CD Pipeline
 
 on:
+  schedule:
+    - cron: '0 0 * * *'
   push:
     branches:
       - main
@@ -39,7 +41,7 @@ jobs:
       - name: Install Python packages
         run: pip install -r requirements.txt
 
-      - name: Configure snowcli and Craft Intelligence Through Analytics
+      - name: Set up Snowflake CLI and Craft Intelligence Through Analytics
         run: |
           echo "[connections.dev]" > $GITHUB_WORKSPACE/.devcontainer/config
           echo "accountname = $SNOWSQL_ACCOUNT" >> $GITHUB_WORKSPACE/.devcontainer/config
@@ -48,6 +50,7 @@ jobs:
           echo "rolename = $SNOWSQL_ROLE" >> $GITHUB_WORKSPACE/.devcontainer/config
           echo "warehousename = $SNOWSQL_WAREHOUSE" >> $GITHUB_WORKSPACE/.devcontainer/config
           echo "dbname = $SNOWSQL_DATABASE" >> $GITHUB_WORKSPACE/.devcontainer/config
+          snowsql -c dev -f $GITHUB_WORKSPACE/.devcontainer/config
           python deploy_cita.py $GITHUB_WORKSPACE
 
       - name: Deploy Airflow DAG
@@ -60,11 +63,7 @@ jobs:
           SNOWSQL_ROLE: ${{ secrets.SNOWSQL_ROLE }}
           SNOWSQL_WAREHOUSE: ${{ secrets.SNOWSQL_WAREHOUSE }}
           SNOWSQL_DATABASE: ${{ secrets.SNOWSQL_DATABASE }}
-
-
+          DAG_ID: "Final"
+          
       - name: Crafting Intelligence Through Analytics
         run: python deploy_cita.py $GITHUB_WORKSPACE
-
-
-
-
