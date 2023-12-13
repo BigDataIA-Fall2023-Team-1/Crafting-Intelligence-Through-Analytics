@@ -26,7 +26,7 @@ jobs:
       - name: Set up Snowflake CLI and Craft Intelligence Through Analytics
         run: |
           echo "[connections.dev]" > $GITHUB_WORKSPACE/.devcontainer/config
-          conda env create -f .devcontainer/environment.yml
+          conda env create -f .github/workflows/environment.yml
           conda activate snowflake-demo
           snowsql -c dev -f $GITHUB_WORKSPACE/.devcontainer/config
           python deploy_cita.py $GITHUB_WORKSPACE
