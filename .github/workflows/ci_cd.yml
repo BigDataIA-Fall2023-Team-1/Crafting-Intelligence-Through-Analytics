@@ -39,6 +39,17 @@ jobs:
       - name: Install Python packages
         run: pip install -r requirements.txt
 
+      - name: Configure snowcli and Craft Intelligence Through Analytics
+        run: |
+          echo "[connections.dev]" > $GITHUB_WORKSPACE/.devcontainer/config
+          echo "accountname = $SNOWSQL_ACCOUNT" >> $GITHUB_WORKSPACE/.devcontainer/config
+          echo "username = $SNOWSQL_USER" >> $GITHUB_WORKSPACE/.devcontainer/config
+          echo "password = $SNOWSQL_PWD" >> $GITHUB_WORKSPACE/.devcontainer/config
+          echo "rolename = $SNOWSQL_ROLE" >> $GITHUB_WORKSPACE/.devcontainer/config
+          echo "warehousename = $SNOWSQL_WAREHOUSE" >> $GITHUB_WORKSPACE/.devcontainer/config
+          echo "dbname = $SNOWSQL_DATABASE" >> $GITHUB_WORKSPACE/.devcontainer/config
+          python deploy_cita.py $GITHUB_WORKSPACE
+
       - name: Deploy Airflow DAG
         run: python deploy_dag.py
         env:
@@ -49,14 +60,11 @@ jobs:
           SNOWSQL_ROLE: ${{ secrets.SNOWSQL_ROLE }}
           SNOWSQL_WAREHOUSE: ${{ secrets.SNOWSQL_WAREHOUSE }}
           SNOWSQL_DATABASE: ${{ secrets.SNOWSQL_DATABASE }}
-        run: |
-          echo "[connections.dev]" > $GITHUB_WORKSPACE/.devcontainer/config
-          echo "accountname = $SNOWSQL_ACCOUNT" >> $GITHUB_WORKSPACE/.devcontainer/config
-          echo "username = $SNOWSQL_USER" >> $GITHUB_WORKSPACE/.devcontainer/config
-          echo "password = $SNOWSQL_PWD" >> $GITHUB_WORKSPACE/.devcontainer/config
-          echo "rolename = $SNOWSQL_ROLE" >> $GITHUB_WORKSPACE/.devcontainer/config
-          echo "warehousename = $SNOWSQL_WAREHOUSE" >> $GITHUB_WORKSPACE/.devcontainer/config
-          echo "dbname = $SNOWSQL_DATABASE" >> $GITHUB_WORKSPACE/.devcontainer/config
+
 
       - name: Crafting Intelligence Through Analytics
         run: python deploy_cita.py $GITHUB_WORKSPACE
+
+
+
+
