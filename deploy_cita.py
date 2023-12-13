@@ -39,5 +39,5 @@ for (directory_path, directory_names, file_names) in os.walk(root_directory):
     print(f"Calling snowcli to deploy the {app_type} app")
     os.chdir(directory_path)
     # snow login will update the app.toml file with the correct path to the snowsql config file
-    os.system(f"snow login -c {root_directory}/config -C dev")
+    os.system(f"snow login -c {root_directory}/.devcontainer/config -C dev")
     os.system(f"snow {app_type} create")
