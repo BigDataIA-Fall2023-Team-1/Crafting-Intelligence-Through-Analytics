@@ -47,7 +47,6 @@ database = Database(DATABASE_URL)
 metadata = MetaData()
 Base = declarative_base()
 engine = create_engine(DATABASE_URL)
-
 # Define the 'users' table
 users = Table(
     "users",

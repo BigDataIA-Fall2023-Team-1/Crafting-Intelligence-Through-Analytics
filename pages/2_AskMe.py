@@ -2,7 +2,9 @@ import os
 import re
 import warnings
 import logging
+import PyPDF2
 import requests
+from io import BytesIO
 import streamlit as st
 from dotenv import load_dotenv
 from chain import load_chain
@@ -126,10 +128,43 @@ if "access_token" in st.session_state:
                 # Close the cursor
                 cursor.close()
 
-                # return st.dataframe(result)
+                return st.dataframe(result)
             except SnowparkSQLException as e:
                 return handle_sql_exception(query, conn, e, retries)
+            
+        def read_pdf(file):
+            # Read the content of the uploaded PDF file
+            pdf_bytes = uploaded_file.read()
 
+            # Use BytesIO to create a "file-like" object
+            pdf_file = BytesIO(pdf_bytes)
+
+            # Read the PDF content using PyPDF2
+            pdf_reader = PyPDF2.PdfReader(pdf_file)
+            
+            text = ""
+            for page_num in range(len(pdf_reader.pages)):
+                text += pdf_reader.pages[page_num].extract_text()
+
+            return text
+
+        # Display PDF content
+        uploaded_file = st.sidebar.file_uploader("Upload a PDF file", type=["pdf"])
+        if uploaded_file is not None:
+            st.sidebar.success("File successfully uploaded!")
+
+            # Check if PDF content is already in session state
+            if "pdf_content" not in st.session_state.keys():
+                st.session_state.pdf_content = ""
+
+            # Read and store the PDF content
+            pdf_text = read_pdf(uploaded_file)
+            st.session_state.pdf_content = pdf_text
+            
+            # Display PDF content from session state
+            st.subheader("PDF Content:")
+            st.text(st.session_state.pdf_content)
+            
         if st.session_state.messages[-1]["role"] != "assistant":
             content = st.session_state.messages[-1]["content"]
             if isinstance(content, str):
