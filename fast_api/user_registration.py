@@ -47,7 +47,6 @@ database = Database(DATABASE_URL)
 metadata = MetaData()
 Base = declarative_base()
 engine = create_engine(DATABASE_URL)
-
 # Define the 'users' table
 users = Table(
     "users",
@@ -157,44 +156,3 @@ async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(
 @app.get("/protected")
 async def get_protected_data(current_user: User = Depends(oauth2_scheme)):
     return current_user
-
-schema = """
-    create TABLE US_JOBS (
-        COMPANY_NAME VARCHAR(16777216),
-        JOB_TITLE VARCHAR(16777216),
-        LOCATION VARCHAR(16777216),
-        COMPANY_DOMAIN VARCHAR(16777216),
-        JOB_URL VARCHAR(16777216),
-        POSTED_ON DATE,
-        JOB_ID NUMBER(38,0),
-        CITY VARCHAR(16777216),
-        STATE VARCHAR(16777216)
-    );
-"""
-
-@app.post("/process_question")
-async def process_question(input_data: UserInput, current_user: User = Depends(oauth2_scheme)):
-    try:
-        # Initialize session state to store conversation history
-        if 'conversation' not in st.session_state:
-            st.session_state.conversation = []
-
-        openai.api_key = os.getenv("OPENAI_API")
-        sql_query = openai.ChatCompletion.create(
-            model="gpt-3.5-turbo",
-            messages=[
-                {"role": "system", "content": f"Given the following SQL table {schema}, your job is to write SQL queries based on user's request"},
-                {"role": "user", "content": f"If the asked question doesn't belong to a SQL query, then tell the user to be specific on what they want to see from the database by displaying the {schema}. Otherwise, generate an SQL query on {input_data.question}"}
-            ],
-            temperature=0,
-            max_tokens=256,
-            top_p=1,
-            frequency_penalty=0,
-            presence_penalty=0
-        )
-        result = sql_query['choices'][-1]['message']['content']
-        # snow_connect(result)
-        return {"sql_query": result}
-
-    except Exception as e:
-        return {"error": str(e)}
