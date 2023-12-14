@@ -65,7 +65,6 @@ def message_func(text, is_user=False, is_df=False):
                     """,
                 unsafe_allow_html=True,
             )
-            # st.write(text)
             return
         else:
             text = format_message(text)
@@ -135,7 +134,6 @@ class StreamlitUICallbackHandler(BaseCallbackHandler):
             """,
             unsafe_allow_html=True,
         )
-        st.dataframe(df)
 
     def on_llm_end(self, response, run_id, parent_run_id=None, **kwargs):
         """
