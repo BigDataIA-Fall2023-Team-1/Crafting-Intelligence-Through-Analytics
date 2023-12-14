@@ -12,12 +12,12 @@ print(f"Deploying LinkedIn / Indeed Jobs in root directory {root_directory}")
 # For example, you can invoke your existing deployment script or commands
 
 # Change directory to your Airflow DAG directory
-dag_directory = os.path.join(root_directory, 'airflow/dags/test1.py')
+dag_directory = os.path.join(root_directory, 'airflow/dags')
 os.chdir(dag_directory)
 
 # Run your Airflow DAG deployment command
 # Modify this based on your actual deployment command
-os.system("airflow dags trigger -c '{\"key\": \"value\"}' your_dag_id")
+os.system(f"airflow dags trigger -c '{{\"key\": \"value\"}}' Final")
 
 print("Airflow DAG deployment completed.")
 

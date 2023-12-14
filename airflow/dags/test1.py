@@ -170,7 +170,6 @@ def merge():
     cursor.close()
     conn.close()
 
-
 def convert_relative_time(relative_time):
     try:
         # Extract numerical value using regular expression
