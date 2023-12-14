@@ -40,7 +40,7 @@ s3_bucket_name = os.getenv("AIRFLOW_VAR_S3_BUCKET_NAME")
 def scrape_jobs():  
     job_search_keyword = ['Data Engineer', 'Data Analyst', 'Software Developer','Data Scientist','Software Engineer','Machine Learning','Cloud','Supply Chain','DevOps', 'Business Analyst', 'AI']
     all_jobs = []
-    remote_webdriver = 'http://172.20.0.4:4444'
+    remote_webdriver = 'http://172.18.0.4:4444'
     for job_ in job_search_keyword:
         option= webdriver.ChromeOptions()
         option.add_argument("--disable-dev-shm-usage")
@@ -185,7 +185,7 @@ def convert_relative_time(relative_time):
 
 dag= DAG(
     dag_id= "Final",
-    schedule= "0 0 * * *",
+    schedule_interval="@hourly",
     start_date=days_ago(0),
     dagrun_timeout= timedelta(minutes=60),
     tags=["Final Project","damg7245"],
