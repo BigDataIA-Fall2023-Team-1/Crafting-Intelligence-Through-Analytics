@@ -1,3 +1,10 @@
+volumes:
+  production_postgres_data: {}
+  production_postgres_data_backups: {}
+  production_media: {}
+  production_tmp: {}
+  production_staticfiles: {}
+
 version: "3.8"
 
 services:
