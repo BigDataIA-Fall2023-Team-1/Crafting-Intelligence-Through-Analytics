@@ -112,8 +112,13 @@ jobs:
           SNOWSQL_WAREHOUSE: ${{ secrets.SNOWSQL_WAREHOUSE }}
           SNOWSQL_DATABASE: ${{ secrets.SNOWSQL_DATABASE }}
           DAG_ID: "Final"
-          
-      - name: Query Data Loaded From CI of Airflow Dag
+
+      - name: Install Snowflake CLI
+        run: |
+          curl -O https://sfc-repo.snowflakecomputing.com/snowsql/bootstrap/1.2/linux_x86_64/snowsql-1.2.10-linux_x86_64.bash
+          bash snowsql-1.2.10-linux_x86_64.bash
+
+      - name: Query Snowflake and display table data
         run: |
           snowsql -a $SNOWFLAKE_ACCOUNT -u $SNOWFLAKE_USER -p $SNOWFLAKE_PASSWORD -r $SNOWFLAKE_ROLE -w $SNOWFLAKE_WAREHOUSE -d $SNOWFLAKE_DATABASE \
             -s $SNOWFLAKE_SCHEMA -q "SELECT * FROM $SNOWFLAKE_TABLE;"
@@ -124,6 +129,7 @@ jobs:
           SNOWFLAKE_ROLE: ${{ secrets.SNOWFLAKE_ROLE }}
           SNOWFLAKE_WAREHOUSE: ${{ secrets.SNOWFLAKE_WAREHOUSE }}
           SNOWFLAKE_DATABASE: ${{ secrets.SNOWFLAKE_DATABASE }}
-          SNOWFLAKE_SCHEMA: "${{ secrets.SNOWFLAKE_SCHEMA}}"
-          SNOWFLAKE_TABLE: ${{ secrets.SNOWFLAKE_TABLE}}
+          SNOWFLAKE_TABLE: "PUBLIC"
+          SNOWFLAKE_SCHEMA: "US_JOBS_DATABASE"
+
           
