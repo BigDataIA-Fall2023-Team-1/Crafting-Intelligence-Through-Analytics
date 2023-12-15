@@ -36,9 +36,9 @@ Codelabs - https://codelabs-preview.appspot.com/?file_id=1UmA1PbuQUKTWYhzkq_1JBi
 
 Name | NUID | Contribution 
 --- | --- | --- |
-Manohar Indukuri | 002774942 | -
-Prathamesh Kulkarni | 001560684 | -
-Sarvesh Malpani | 002776061 | -
+Manohar Indukuri | 002774942 | 34%
+Prathamesh Kulkarni | 001560684 | 33%
+Sarvesh Malpani | 002776061 | 33%
 
 
 # Environment Variables
@@ -67,6 +67,17 @@ HOST_IP_ADDRESS=""
 # email
 MY_EMAIL=""
 APP_PASSWORD=""
+
+# Airflow
+AIRFLOW_VAR_AWS_ACCESS_KEY1=""
+AIRFLOW_VAR_AWS_SECRET_KEY1=""
+AIRFLOW_VAR_S3_BUCKET_NAME1=""
+AIRFLOW_VAR_AWS_REGION1=""
+
+AIRFLOW_VAR_AWS_ACCESS_KEY=""
+AIRFLOW_VAR_AWS_SECRET_KEY=""
+AIRFLOW_VAR_S3_BUCKET_NAME=""
+AIRFLOW_VAR_AWS_REGION=""
 ```
 
 # Environment Setup
