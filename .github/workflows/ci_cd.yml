@@ -43,7 +43,7 @@ jobs:
 
 
       - name: Deploy Airflow DAG
-        run: python airflow/dags/test1.py
+        run: python airflow/dags/Pipeline1.py
         env:
           SNOWFLAKE_ACCOUNT: ${{ secrets.SNOWFLAKE_ACCOUNT }}
           SNOWFLAKE_USER: ${{ secrets.SNOWFLAKE_USER }}
@@ -56,3 +56,8 @@ jobs:
           
       - name: Crafting Intelligence Through Analytics
         run: python deploy_cita.py $GITHUB_WORKSPACE
+
+
+
+
+          
