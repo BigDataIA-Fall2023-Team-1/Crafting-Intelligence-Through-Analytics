@@ -42,7 +42,7 @@ def main():
         JOB_TITLE,
         COUNT(*) AS JOB_COUNT
     FROM
-        JOBS.TEST
+        PUBLIC.US_JOBS_DATABASE
     GROUP BY
         JOB_TITLE;
     """
@@ -58,7 +58,7 @@ def main():
         LOCATION,
         COUNT(*) AS LOCATION_COUNT
     FROM
-        JOBS.TEST
+        PUBLIC.US_JOBS_DATABASE
     GROUP BY
         LOCATION;
     """
@@ -74,7 +74,7 @@ def main():
         POSTED_ON,
         COUNT(*) AS POST_COUNT
     FROM
-        JOBS.TEST
+        PUBLIC.US_JOBS_DATABASE
     GROUP BY
         POSTED_ON;
     """
@@ -91,7 +91,7 @@ def main():
         STATE,
         COUNT(*) AS JOB_COUNT
     FROM
-        JOBS.TEST
+        PUBLIC.US_JOBS_DATABASE
     GROUP BY
         STATE;
     """
@@ -109,12 +109,13 @@ def execute_query(conn, query):
     return result
 
 # If the user is authenticated, they can access protected data
-if "access_token" in st.session_state:
-    access_token = st.session_state.access_token
-    headers = {"Authorization": f"Bearer {access_token}"}
-    response = requests.get(f"http://{host_ip_address}:8000/protected", headers=headers)
-    if response.status_code == 200:
-        authenticated_user = response.json()
-        main() 
-else:
-    st.text("Please login/register to access the Application.")
+# if "access_token" in st.session_state:
+#     access_token = st.session_state.access_token
+#     headers = {"Authorization": f"Bearer {access_token}"}
+#     response = requests.get(f"http://{host_ip_address}:8000/protected", headers=headers)
+#     if response.status_code == 200:
+#         authenticated_user = response.json()
+#         main() 
+# else:
+#     st.text("Please login/register to access the Application.")
+main()

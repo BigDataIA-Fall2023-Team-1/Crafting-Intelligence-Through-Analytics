@@ -74,8 +74,7 @@ def Data_cleaning(**kwargs):
     df = ti.xcom_pull(task_ids="Data_Scraping")
     aws_access_key_id = os.getenv("AIRFLOW_VAR_AWS_ACCESS_KEY")
     aws_secret_access_key = os.getenv("AIRFLOW_VAR_AWS_SECRET_KEY")
-    message="Not Available"
-    message1="Remote"
+    message="Remote"
     df['Job_Posted_Date'] = df['Job_Posted_Date'].apply(lambda x: convert_relative_time(x) if x is not None else None)
     df['Job_Posted_Date'].fillna(datetime.now().strftime("%m/%d/%Y"), inplace=True)
     for index, row in df.iterrows():
@@ -85,9 +84,9 @@ def Data_cleaning(**kwargs):
         if len(company_data) > 1 and ', ' in company_data[1]:
             city_state = company_data[1].split(', ', 1)
             df.at[index, 'City'] = city_state[0]
-            df.at[index, 'State'] = city_state[1] if len(city_state) > 1 else message
+            df.at[index, 'State'] = city_state[1][:2] if len(city_state) > 1 else message
         else:
-            df.at[index, 'City'] = message1
+            df.at[index, 'City'] = message
             df.at[index, 'State'] = message
     df['Location'] = 'United States'
     df.drop(['company'], axis=1, inplace=True)
