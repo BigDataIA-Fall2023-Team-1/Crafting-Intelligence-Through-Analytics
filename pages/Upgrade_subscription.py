@@ -8,18 +8,13 @@ load_dotenv()
 # Set your Stripe test key
 stripe.api_key = os.getenv('STRIPE_API_KEY')
 
-# if "access_token" in st.session_state:
-#     access_token = st.session_state.access_token
-#     headers = {"Authorization": f"Bearer {access_token}"}
-#     response = requests.get(f"http://{host_ip_address}:8000/protected", headers=headers)
-#     if response.status_code == 200:
-#         authenticated_user = response.json()
-
 # Streamlit UI for subscription and payment form
-subscription_options = ["Gold", "Platinum"]
-selected_subscription = st.radio("Select Subscription:", subscription_options)
+st.title("PAYMENT GATEWAY")
 
-# Set default amount based on the selected subscription
+# User inputs
+subscription_options = ["Gold", "Platinum"]
+selected_subscription = st.selectbox("Select Subscription:", subscription_options)
+
 if selected_subscription == "Gold":
     default_amount = 10
 elif selected_subscription == "Platinum":
@@ -27,13 +22,28 @@ elif selected_subscription == "Platinum":
 else:
     default_amount = 0
 
-# Display the default amount as read-only text
-st.text(f"Amount: ${default_amount}")
+st.write(f"Selected Subscription: {selected_subscription}")
+st.write(f"Amount: ${default_amount}")
 
-card_number = st.text_input("Enter the card number:")
-# username = st.text_input("Enter your username:")
-# password = st.text_input("Enter your password:", type="password")
+# Payment details
+st.subheader("Payment Details")
 
+# Credit card number input with formatting
+card_number = st.text_input("Card Number", type="password", key="card_number")
+
+# Format the card number into groups of four digits
+formatted_card_number = " ".join([card_number[i:i+4] for i in range(0, len(card_number), 4)])
+st.text(f"Formatted Card Number: {formatted_card_number}")
+
+expiration_date = st.date_input("Expiration Date")
+cvc = st.text_input("CVC/CVV")
+
+# User information (you can uncomment these lines if you need to collect user info)
+# st.subheader("User Information")
+# username = st.text_input("Username")
+# password = st.text_input("Password", type="password")
+
+# Submit button
 if st.button("Submit Payment"):
     try:
         # Create a Payment Intent with success_url including {CHECKOUT_SESSION_ID}
@@ -46,10 +56,13 @@ if st.button("Submit Payment"):
             success_url=f"http://yoursite.com/order/success?session_id={{CHECKOUT_SESSION_ID}}",  # Replace with your actual success URL
         )
 
-        # Redirect to the Checkout Session's URL
+        # Display success message
+        st.success("Payment successful!")
         st.markdown(f"Please complete your payment [here]({payment_intent.charges.data[0].payment_intent})")
 
     except stripe.error.CardError as e:
         st.error(f"Card error: {e.error.message}")
     except stripe.error.StripeError as e:
         st.error(f"Stripe error: {e.error.message}")
+
+

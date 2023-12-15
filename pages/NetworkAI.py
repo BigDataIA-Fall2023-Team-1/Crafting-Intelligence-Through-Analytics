@@ -122,7 +122,7 @@ if data:
 
     # Create a multiselect with unique values and limit the number of selections
     selected_companies = st.multiselect(
-        "Select CompanyNames", df['COMPANYNAME'].unique(), default=[], key="multiselect"
+        "Select Company Names To Increase Your Potential Network", df['COMPANYNAME'].unique(), default=[], key="multiselect"
     )
 
     # Check if the number of selections exceeds the limit
