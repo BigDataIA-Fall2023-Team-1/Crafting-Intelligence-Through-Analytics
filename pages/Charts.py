@@ -9,7 +9,7 @@ from dotenv import load_dotenv
 # Load environment variables from the .env file
 load_dotenv()
 
-# host_ip_address = os.getenv("HOST_IP_ADDRESS")
+host_ip_address = os.getenv("HOST_IP_ADDRESS")
 
 # Environment Variables
 snowflake_account = os.getenv("SNOWFLAKE_ACCOUNT")
@@ -108,16 +108,13 @@ def execute_query(conn, query):
         result = cursor.fetchall()
     return result
 
-
-main() 
-
-# # If the user is authenticated, they can access protected data
-# if "access_token" in st.session_state:
-#     access_token = st.session_state.access_token
-#     headers = {"Authorization": f"Bearer {access_token}"}
-#     response = requests.get(f"http://{host_ip_address}:8000/protected", headers=headers)
-#     if response.status_code == 200:
-#         authenticated_user = response.json()
-#         main() 
-# else:
-#     st.text("Please login/register to access the Application.")
+# If the user is authenticated, they can access protected data
+if "access_token" in st.session_state:
+    access_token = st.session_state.access_token
+    headers = {"Authorization": f"Bearer {access_token}"}
+    response = requests.get(f"http://{host_ip_address}:8000/protected", headers=headers)
+    if response.status_code == 200:
+        authenticated_user = response.json()
+        main() 
+else:
+    st.text("Please login/register to access the Application.")
