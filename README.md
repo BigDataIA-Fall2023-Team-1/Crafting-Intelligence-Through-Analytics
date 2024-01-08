@@ -63,19 +63,19 @@ Expected deliverables encompass a comprehensive dataset of job-related informati
 
 
 # Process Outline:
-**1.Data Extraction with Selenium and Apache Airflow:**:
+**1.Data Extraction with Selenium and Apache Airflow:**
 Selenium is utilized to automate web scraping on Indeed, enabling the extraction of up-to-date job information. Apache Airflow schedules and manages the daily execution of the extraction process, ensuring regular data updates and maintaining the relevance of the extracted data.
 
-**2.Storage in Snowflake Data Warehouse::**Storage in Snowflake Data Warehouse:
+**2.Storage in Snowflake Data Warehouse::**
 Snowflake, a cloud-based data warehouse, is chosen for its scalability, ease of use, and efficient storage capabilities. Storing raw data in Snowflake allows for centralized and secure data management.
 
-**3.Data Cleaning with Python:**:
+**3.Data Cleaning with Python:**
 Python scripts are employed to clean and preprocess the raw data obtained from Indeed. Data cleaning involves handling missing values, standardizing formats, and resolving inconsistencies to ensure data quality.
 
-**4.ETL Process with Apache Airflow:**:
+**4.ETL Process with Apache Airflow:**
 Apache Airflow is now used for the Extract, Transform, Load (ETL) process, replacing PySpark. It orchestrates and schedules the ETL tasks, transforming the cleaned data into a format suitable for analysis. Transformation tasks may include data aggregation, filtering, and feature engineering to enhance the data's analytical value.
 
-**5.Appending Processed Data to Snowflake:**:
+**5.Appending Processed Data to Snowflake:**
 The transformed data is appended to the Snowflake data warehouse, creating a consolidated repository of structured and processed information. Snowflake's architecture supports seamless data integration, making it an ideal choice for ETL processes.
 
 **6. User Interface:** Build a web application using Streamlit to provide an intuitive interface for job seekers to search and explore the Jobs, Resume Parsing Feature & Networking Feature.
@@ -150,10 +150,11 @@ To run the application locally, follow these steps:
 
 3. Create a .env file in the root directory with the following variables:
 
+```
+#Openai
 OPENAI_API="Your_Secret_Key"
 STRIPE_API_KEY="Your_Secret_Key"
 
-```
 # Snowflake 
 SNOWFLAKE_ACCOUNT=""
 SNOWFLAKE_USER=""
@@ -200,47 +201,7 @@ AIRFLOW_VAR_AWS_REGION=""
 9. Enter username and password if you've already logged in. Otherwise you can register yourself and then run the application.
 
 
-# Environment Variables
-
-```
-#Openai
-OPENAI_API="Your_Secret_Key"
-STRIPE_API_KEY="Your_Secret_Key"
-
-# Snowflake 
-SNOWFLAKE_ACCOUNT=""
-SNOWFLAKE_USER=""
-SNOWFLAKE_PASSWORD=""
-SNOWFLAKE_ROLE=""
-SNOWFLAKE_WAREHOUSE=""
-SNOWFLAKE_DATABASE=""
-SNOWFLAKE_TABLE=""
-
-# Postgres
-POSTGRES_USER=""
-POSTGRES_PASSWORD=""
-POSTGRES_HOST=""
-POSTGRES_PORT="5432"
-POSTGRES_DB=""
-HOST_IP_ADDRESS=""
-
-# email
-MY_EMAIL=""
-APP_PASSWORD=""
-
-# Airflow
-AIRFLOW_VAR_AWS_ACCESS_KEY1=""
-AIRFLOW_VAR_AWS_SECRET_KEY1=""
-AIRFLOW_VAR_S3_BUCKET_NAME1=""
-AIRFLOW_VAR_AWS_REGION1=""
-
-AIRFLOW_VAR_AWS_ACCESS_KEY=""
-AIRFLOW_VAR_AWS_SECRET_KEY=""
-AIRFLOW_VAR_S3_BUCKET_NAME=""
-AIRFLOW_VAR_AWS_REGION=""
-```
-
-# Environment Setup
+# Application Setup
 
 ### Create virtual environment
 ```
@@ -261,7 +222,7 @@ make streamlit
 
 # Database Setup
 
-- Create Table
+Create Table
 ```
 CREATE TABLE users (
     id SERIAL PRIMARY KEY,
@@ -274,17 +235,17 @@ CREATE TABLE users (
 );
 ```
 
-- Create user role
+Create user role
 ```
 CREATE USER admin WITH PASSWORD 'password';
 ```
 
-- Grant necessary privileges for generating primary key values
+Grant necessary privileges for generating primary key values
 ```
 GRANT USAGE, SELECT ON SEQUENCE users_id_seq TO admin;
 ```
 
-- Admin role can perform all CRUD operations
+Admin role can perform all CRUD operations
 ```
 GRANT SELECT, INSERT, UPDATE, DELETE ON users TO admin;
 ```
