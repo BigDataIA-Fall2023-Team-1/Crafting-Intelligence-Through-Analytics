@@ -12,8 +12,7 @@
 [![Apache Airflow](https://img.shields.io/badge/Airflow-017CEE?style=for-the-badge&logo=Apache%20Airflow&logoColor=white)](https://airflow.apache.org/)
 [![GitHub Actions](https://img.shields.io/badge/Github%20Actions-282a2e?style=for-the-badge&logo=githubactions&logoColor=367cfe)](https://github.com/features/actions)
 ![Static Badge](https://img.shields.io/badge/Docker-%232496ED?style=for-the-badge&logo=Docker&color=blue)
-![Static Badge](https://img.shields.io/badge/Google%20Cloud%20Platform-%234285F4?style=for-the-badge&logoColor=%234285F4)
-![Static Badge](https://img.shields.io/badge/ApacheSpark-%23E25A1C?style=for-the-badge&logo=ApacheSpark&logoColor=%23E25A1C&color=green)
+![Google Cloud](https://img.shields.io/badge/Google_Cloud-%234285F4.svg?style=for-the-badge&logo=google-cloud&logoColor=white)
 ![Static Badge](https://img.shields.io/badge/OpenAI-%23412991?style=for-the-badge&logo=OpenAI&logoColor=%23412991&color=red)
 ![Static Badge](https://img.shields.io/badge/Postgres-%234169E1?style=for-the-badge&logo=PostgreSQL&logoColor=%234169E1&color=black)
 
@@ -66,7 +65,7 @@ Expected deliverables encompass a comprehensive dataset of job-related informati
 **1.Data Extraction with Selenium and Apache Airflow:**
 Selenium is utilized to automate web scraping on Indeed, enabling the extraction of up-to-date job information. Apache Airflow schedules and manages the daily execution of the extraction process, ensuring regular data updates and maintaining the relevance of the extracted data.
 
-**2.Storage in Snowflake Data Warehouse::**
+**2.Storage in Snowflake Data Warehouse:**
 Snowflake, a cloud-based data warehouse, is chosen for its scalability, ease of use, and efficient storage capabilities. Storing raw data in Snowflake allows for centralized and secure data management.
 
 **3.Data Cleaning with Python:**
